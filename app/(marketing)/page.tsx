@@ -17,6 +17,7 @@ export default function Landing(){
         <div className="mt-8 flex gap-4">
           <Button><Link href="/dashboard">Enter App</Link></Button>
           <Button className="bg-transparent border border-white/20"><Link href="/trips">Explore Trips</Link></Button>
+          <Button className="bg-white/10"><Link href="/login">Login</Link></Button>
         </div>
       </div>
     </main>
