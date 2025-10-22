@@ -1,12 +1,13 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { supabase } from '@/lib/supabaseClient'
 import { Button } from '@/components/ui/Button'
 
 export default function Settings() {
   const router = useRouter()
-  const [theme, setTheme] = useState('dark')
+  const { theme, setTheme } = useTheme()
   const [notifications, setNotifications] = useState({
     tripInvites: true,
     upcomingEvents: true,
@@ -31,20 +32,20 @@ export default function Settings() {
       {/* Theme Preferences */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Theme Preferences</h3>
-        <div className="rounded-xl border border-white/10 p-6 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Appearance</div>
-              <div className="text-sm text-zinc-400">Choose your preferred theme</div>
+              <div className="text-sm text-muted-foreground">Choose your preferred theme</div>
             </div>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="px-4 py-2 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
-              <option value="auto">Auto</option>
+              <option value="system">System</option>
             </select>
           </div>
         </div>
@@ -53,16 +54,16 @@ export default function Settings() {
       {/* Notifications */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Notifications</h3>
-        <div className="rounded-xl border border-white/10 p-6 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Trip Invites</div>
-              <div className="text-sm text-zinc-400">Get notified when invited to trips</div>
+              <div className="text-sm text-muted-foreground">Get notified when invited to trips</div>
             </div>
             <button
               onClick={() => setNotifications({...notifications, tripInvites: !notifications.tripInvites})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.tripInvites ? 'bg-green-500' : 'bg-zinc-700'
+                notifications.tripInvites ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -74,12 +75,12 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Upcoming Events</div>
-              <div className="text-sm text-zinc-400">Reminders for events you're attending</div>
+              <div className="text-sm text-muted-foreground">Reminders for events you're attending</div>
             </div>
             <button
               onClick={() => setNotifications({...notifications, upcomingEvents: !notifications.upcomingEvents})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.upcomingEvents ? 'bg-green-500' : 'bg-zinc-700'
+                notifications.upcomingEvents ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -91,12 +92,12 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">New Members</div>
-              <div className="text-sm text-zinc-400">Get notified about new community members</div>
+              <div className="text-sm text-muted-foreground">Get notified about new community members</div>
             </div>
             <button
               onClick={() => setNotifications({...notifications, newMembers: !notifications.newMembers})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.newMembers ? 'bg-green-500' : 'bg-zinc-700'
+                notifications.newMembers ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -108,12 +109,12 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Newsletter</div>
-              <div className="text-sm text-zinc-400">Monthly updates and riding tips</div>
+              <div className="text-sm text-muted-foreground">Monthly updates and riding tips</div>
             </div>
             <button
               onClick={() => setNotifications({...notifications, newsletter: !notifications.newsletter})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.newsletter ? 'bg-green-500' : 'bg-zinc-700'
+                notifications.newsletter ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -127,16 +128,16 @@ export default function Settings() {
       {/* Privacy */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Privacy</h3>
-        <div className="rounded-xl border border-white/10 p-6 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Profile Visibility</div>
-              <div className="text-sm text-zinc-400">Who can see your profile</div>
+              <div className="text-sm text-muted-foreground">Who can see your profile</div>
             </div>
             <select
               value={privacy.profileVisibility}
               onChange={(e) => setPrivacy({...privacy, profileVisibility: e.target.value})}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="px-4 py-2 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="public">Public</option>
               <option value="members">Members Only</option>
@@ -147,12 +148,12 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Show Garage</div>
-              <div className="text-sm text-zinc-400">Display your bikes publicly</div>
+              <div className="text-sm text-muted-foreground">Display your bikes publicly</div>
             </div>
             <button
               onClick={() => setPrivacy({...privacy, showGarage: !privacy.showGarage})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                privacy.showGarage ? 'bg-green-500' : 'bg-zinc-700'
+                privacy.showGarage ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -164,12 +165,12 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Show Trips</div>
-              <div className="text-sm text-zinc-400">Make your trips visible to others</div>
+              <div className="text-sm text-muted-foreground">Make your trips visible to others</div>
             </div>
             <button
               onClick={() => setPrivacy({...privacy, showTrips: !privacy.showTrips})}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                privacy.showTrips ? 'bg-green-500' : 'bg-zinc-700'
+                privacy.showTrips ? 'bg-green-500' : 'bg-muted'
               }`}
             >
               <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
@@ -183,7 +184,7 @@ export default function Settings() {
       {/* Account Actions */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Account</h3>
-        <div className="rounded-xl border border-white/10 p-6 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <Button
             onClick={handleLogout}
             className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20"
