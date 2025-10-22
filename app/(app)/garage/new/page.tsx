@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { localZodResolver as zodResolver } from '@/lib/localZodResolver'
@@ -9,6 +10,8 @@ import { api } from '@/lib/axios'
 
 export default function NewBike() {
   const router = useRouter()
+  const [error, setError] = useState<string>('')
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<BikeInput>({
     resolver: zodResolver(BikeSchema),
     defaultValues: {
@@ -17,13 +20,28 @@ export default function NewBike() {
   })
 
   async function onSubmit(values: BikeInput) {
-    const res = await api.post('/bikes', values)
-    if (res.data?.bike) router.push('/garage')
+    try {
+      setError('')
+      const res = await api.post('/bikes', values)
+      if (res.data?.bike) {
+        router.push('/garage')
+      } else if (res.data?.error) {
+        setError(res.data.error)
+      }
+    } catch (err: any) {
+      console.error('Error creating bike:', err)
+      setError(err.response?.data?.error || err.message || 'Failed to create bike. Please try again.')
+    }
   }
 
   return (
     <div className="max-w-xl">
       <h2 className="text-3xl font-bold">Add Bike</h2>
+      {error && (
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>

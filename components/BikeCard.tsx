@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/axios'
 import { Trash2, Edit } from 'lucide-react'
+import { BikeIcon } from './BikeIcon'
 
 type Bike = {
   id: string
@@ -42,11 +43,14 @@ export function BikeCard({ bike }: { bike: Bike }) {
   return (
     <div className="rounded-2xl border border-white/10 p-4 hover:bg-white/5 transition">
       <div className="flex items-start gap-3">
-        <img
-          src={bike.photo_url ?? '/logo.png'}
-          alt={displayName}
-          className="h-24 w-24 object-cover rounded-xl"
-        />
+        <div className="h-24 w-24 flex items-center justify-center bg-white/5 rounded-xl">
+          <BikeIcon
+            make={bike.make}
+            model={bike.model}
+            year={bike.year}
+            className="w-20 h-20"
+          />
+        </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold truncate">{displayName}</h3>
           <div className="mt-1 text-sm text-zinc-400 truncate">

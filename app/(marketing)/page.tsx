@@ -1,25 +1,184 @@
+'use client'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
+import { supabase } from '@/lib/supabaseClient'
 
-export default function Landing(){
+export default function Landing() {
+  const router = useRouter()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // Check auth status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.push('/dashboard')
+      }
+    })
+
+    // Detect mobile
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          (window.navigator as any).standalone === true
+      return isMobileDevice || isStandalone
+    }
+    setIsMobile(checkMobile())
+  }, [router])
+
+  // Mobile: redirect to login
+  if (isMobile) {
+    useEffect(() => {
+      router.push('/login')
+    }, [router])
+    return null
+  }
+
+  // Desktop: show marketing page
   return (
-    <main className="min-h-screen bg-gradient-to-b from-brand.ink to-black text-white">
-      <div className="mx-auto max-w-6xl px-6 py-24">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-brand.red/20 ring-2 ring-brand.red flex items-center justify-center">
-            <Image alt="Overlanders" src="/logo.png" width={48} height={48}/>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-red-500/20 ring-2 ring-red-500 flex items-center justify-center">
+              <Image alt="Overlander" src="/logo.png" width={32} height={32}/>
+            </div>
+            <span className="text-yellow-400 text-2xl font-bold tracking-wide">OVERLANDER</span>
           </div>
-          <span className="text-brand.yellow text-4xl font-semibold tracking-wider">OVERLANDERS</span>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-zinc-300 hover:text-white transition">Login</Link>
+            <Link href="/login">
+              <Button>Sign Up</Button>
+            </Link>
+          </div>
         </div>
-        <h1 className="mt-8 text-6xl font-extrabold leading-tight">Ride. Record. Relive.</h1>
-        <p className="mt-4 max-w-2xl text-zinc-300">Membership + trip logbook for cross‑border riders. Built for BMW RT, Harley, and every long‑haul machine.</p>
-        <div className="mt-8 flex gap-4">
-          <Button><Link href="/dashboard">Enter App</Link></Button>
-          <Button className="bg-transparent border border-white/20"><Link href="/trips">Explore Trips</Link></Button>
-          <Button className="bg-white/10"><Link href="/login">Login</Link></Button>
+      </header>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="mx-auto max-w-7xl text-center">
+          <h1 className="text-6xl md:text-7xl font-extrabold leading-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+            Ride. Record. Relive.
+          </h1>
+          <p className="mt-6 text-xl text-zinc-300 max-w-3xl mx-auto">
+            The ultimate membership and trip logbook for cross-border motorcycle adventurers.
+            Built for BMW GS riders, Harley tourers, and every long-haul machine.
+          </p>
+          <div className="mt-10 flex gap-4 justify-center">
+            <Link href="/login">
+              <Button className="px-8 py-6 text-lg">Join the Community</Button>
+            </Link>
+            <Button className="px-8 py-6 text-lg bg-white/10 hover:bg-white/20">
+              Watch Demo
+            </Button>
+          </div>
         </div>
-      </div>
-    </main>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 px-6 bg-white/5">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-5xl font-bold text-yellow-400">2,847</div>
+              <div className="mt-2 text-zinc-400">Active Members</div>
+            </div>
+            <div>
+              <div className="text-5xl font-bold text-red-500">1,234</div>
+              <div className="mt-2 text-zinc-400">Trips Organized</div>
+            </div>
+            <div>
+              <div className="text-5xl font-bold text-green-500">47</div>
+              <div className="mt-2 text-zinc-400">Countries Conquered</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Trips */}
+      <section className="py-20 px-6">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-4xl font-bold text-center mb-12">Upcoming Adventures</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: 'Thailand to Laos', date: 'Dec 15-22, 2024', difficulty: 'Moderate', price: 'RM 2,500' },
+              { title: 'Malaysia North-South', date: 'Jan 10-14, 2025', difficulty: 'Easy', price: 'RM 1,200' },
+              { title: 'Borneo Expedition', date: 'Feb 20-28, 2025', difficulty: 'Advanced', price: 'RM 3,800' }
+            ].map((trip, i) => (
+              <div key={i} className="rounded-2xl border border-white/10 p-6 hover:bg-white/5 transition">
+                <div className="h-40 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl mb-4"></div>
+                <h3 className="text-xl font-semibold">{trip.title}</h3>
+                <p className="text-sm text-zinc-400 mt-2">{trip.date}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-sm text-zinc-500">{trip.difficulty}</span>
+                  <span className="text-lg font-bold text-yellow-400">{trip.price}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Previous Events */}
+      <section className="py-20 px-6 bg-white/5">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-4xl font-bold text-center mb-12">Recent Expeditions</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+              <div key={i} className="aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 px-6">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-4xl font-bold text-center mb-12">Rider Stories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: 'Ahmad Razak', bike: 'BMW R1250GS', review: 'Best riding community in Malaysia. The trips are well-organized and the camaraderie is unmatched.' },
+              { name: 'Sarah Lee', bike: 'Triumph Tiger 900', review: 'Finally found a group that takes safety seriously while still having tons of fun on the road.' },
+              { name: 'David Tan', bike: 'Harley Road Glide', review: 'From beginner rides to epic cross-border adventures, Overlander has it all.' }
+            ].map((testimonial, i) => (
+              <div key={i} className="rounded-2xl border border-white/10 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-yellow-400 to-red-500"></div>
+                  <div>
+                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="text-sm text-zinc-400">{testimonial.bike}</div>
+                  </div>
+                </div>
+                <p className="text-zinc-300">"{testimonial.review}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-r from-red-900/20 to-yellow-900/20">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-5xl font-bold mb-6">Ready to Join the Ride?</h2>
+          <p className="text-xl text-zinc-300 mb-10">
+            Become an Overlander member and get access to exclusive trips, community events, and rider benefits.
+          </p>
+          <Link href="/login">
+            <Button className="px-12 py-6 text-xl">Register for Membership</Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t border-white/10">
+        <div className="mx-auto max-w-7xl text-center text-zinc-400 text-sm">
+          <p>&copy; 2024 Overlander. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
   )
 }

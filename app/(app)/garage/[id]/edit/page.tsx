@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { useQuery, useMutation } from '@tanstack/react-query'
@@ -14,6 +15,7 @@ export default function EditBike() {
   const router = useRouter()
   const params = useParams()
   const bikeId = params.id as string
+  const [error, setError] = useState<string>('')
 
   const { data: bikes, isLoading } = useQuery({
     queryKey: ['bikes'],
@@ -38,14 +40,20 @@ export default function EditBike() {
 
   const updateMutation = useMutation({
     mutationFn: async (values: BikeInput) => {
-      await api.put('/bikes', { id: bikeId, ...values })
+      const res = await api.put('/bikes', { id: bikeId, ...values })
+      return res.data
     },
     onSuccess: () => {
       router.push('/garage')
+    },
+    onError: (err: any) => {
+      console.error('Error updating bike:', err)
+      setError(err.response?.data?.error || err.message || 'Failed to update bike. Please try again.')
     }
   })
 
   async function onSubmit(values: BikeInput) {
+    setError('')
     updateMutation.mutate(values)
   }
 
@@ -60,6 +68,11 @@ export default function EditBike() {
   return (
     <div className="max-w-xl">
       <h2 className="text-3xl font-bold">Edit Bike</h2>
+      {error && (
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
