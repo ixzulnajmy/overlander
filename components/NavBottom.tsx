@@ -1,38 +1,32 @@
 'use client'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { HomeIcon, CompassIcon, MapIcon, MotorcycleIcon, UserIcon } from '@/components/icons/3DMenuIcons'
 
 const tabs = [
-  { href: '/dashboard', label: 'Home', icon: 'https://cdn.3dicons.com/packs/3-53/free/03-home.png' },
-  { href: '/explore', label: 'Explore', icon: 'https://cdn.3dicons.com/packs/3-53/free/05-compass.png' },
-  { href: '/trips', label: 'Trips', icon: 'https://cdn.3dicons.com/packs/3-53/free/06-map.png' },
-  { href: '/garage', label: 'Garage', icon: 'https://cdn.3dicons.com/packs/3-53/free/14-motorcycle.png' },
-  { href: '/profile', label: 'Profile', icon: 'https://cdn.3dicons.com/packs/3-53/free/08-user.png' },
+  { href: '/dashboard', label: 'Home', Icon: HomeIcon },
+  { href: '/explore', label: 'Explore', Icon: CompassIcon },
+  { href: '/trips', label: 'Trips', Icon: MapIcon },
+  { href: '/garage', label: 'Garage', Icon: MotorcycleIcon },
+  { href: '/profile', label: 'Profile', Icon: UserIcon },
 ]
 
 export default function NavBottom(){
   const pathname = usePathname()
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-white/10 bg-black/80 backdrop-blur">
+    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/80 backdrop-blur">
       <div className="mx-auto grid grid-cols-5">
         {tabs.map(t => (
           <Link
             key={t.href}
             href={t.href}
             className={cn(
-              'flex flex-col items-center py-2 text-[10px] text-zinc-400 transition-colors',
-              pathname === t.href && 'text-white'
+              'flex flex-col items-center py-2 text-[10px] text-muted-foreground transition-colors',
+              pathname === t.href && 'text-foreground font-medium'
             )}
           >
-            <Image
-              src={t.icon}
-              alt={t.label}
-              width={24}
-              height={24}
-              className="w-6 h-6 mb-1"
-            />
+            <t.Icon className="w-6 h-6 mb-1" />
             <span>{t.label}</span>
           </Link>
         ))}

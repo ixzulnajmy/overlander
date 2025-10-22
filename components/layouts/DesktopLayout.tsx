@@ -1,23 +1,23 @@
 'use client'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { HomeIcon, CompassIcon, MapIcon, MotorcycleIcon, UserIcon, SettingsIcon } from '@/components/icons/3DMenuIcons'
 
 const items = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'https://cdn.3dicons.com/packs/3-53/free/03-home.png' },
-  { href: '/explore', label: 'Explore', icon: 'https://cdn.3dicons.com/packs/3-53/free/05-compass.png' },
-  { href: '/trips', label: 'Trips', icon: 'https://cdn.3dicons.com/packs/3-53/free/06-map.png' },
-  { href: '/garage', label: 'Garage', icon: 'https://cdn.3dicons.com/packs/3-53/free/14-motorcycle.png' },
-  { href: '/profile', label: 'Profile', icon: 'https://cdn.3dicons.com/packs/3-53/free/08-user.png' },
-  { href: '/settings', label: 'Settings', icon: 'https://cdn.3dicons.com/packs/3-53/free/07-settings.png' },
+  { href: '/dashboard', label: 'Dashboard', Icon: HomeIcon },
+  { href: '/explore', label: 'Explore', Icon: CompassIcon },
+  { href: '/trips', label: 'Trips', Icon: MapIcon },
+  { href: '/garage', label: 'Garage', Icon: MotorcycleIcon },
+  { href: '/profile', label: 'Profile', Icon: UserIcon },
+  { href: '/settings', label: 'Settings', Icon: SettingsIcon },
 ]
 
 export default function DesktopLayout({ children }: { children: React.ReactNode }){
   const pathname = usePathname()
   return (
     <div className="min-h-screen grid grid-cols-[260px_1fr]">
-      <aside className="bg-zinc-950 border-r border-white/10 p-4">
+      <aside className="bg-card border-r border-border p-4">
         <div className="text-xl font-bold tracking-wide mb-8">Overlander</div>
         <nav className="space-y-1">
           {items.map(it => (
@@ -25,23 +25,17 @@ export default function DesktopLayout({ children }: { children: React.ReactNode 
               key={it.href}
               href={it.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/5 transition-colors',
-                pathname === it.href && 'bg-white/10 text-white'
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors',
+                pathname === it.href && 'bg-accent text-accent-foreground font-medium'
               )}
             >
-              <Image
-                src={it.icon}
-                alt={it.label}
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
+              <it.Icon className="w-5 h-5" />
               <span>{it.label}</span>
             </Link>
           ))}
         </nav>
       </aside>
-      <main className="p-6">{children}</main>
+      <main className="p-6 bg-background">{children}</main>
     </div>
   )
 }
