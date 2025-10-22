@@ -29,6 +29,7 @@ create table if not exists public.bikes (
   nickname text,
   photo_url text,
   odo_start_km int,
+  status text check (status in ('current','past','wishlist')) default 'current',
   created_at timestamptz default now(),
   updated_at timestamptz
 );
