@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -8,34 +8,52 @@ import { supabase } from '@/lib/supabaseClient'
 
 export default function Landing() {
   const router = useRouter()
-  const [isMobile, setIsMobile] = useState(false)
+  const [popularTrips, setPopularTrips] = useState<any[]>([])
 
   useEffect(() => {
-    // Check auth status
+    // Check auth status - if logged in, go to dashboard
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         router.push('/dashboard')
+        return
       }
     })
 
-    // Detect mobile
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent.toLowerCase()
-      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                          (window.navigator as any).standalone === true
-      return isMobileDevice || isStandalone
-    }
-    setIsMobile(checkMobile())
-  }, [router])
+    // Detect PWA mode (not just mobile device)
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                  (window.navigator as any).standalone === true
 
-  // Mobile: redirect to login
-  if (isMobile) {
-    useEffect(() => {
+    // If PWA mode, redirect to login immediately
+    if (isPWA) {
       router.push('/login')
-    }, [router])
-    return null
-  }
+    }
+
+    // Fetch popular public trips
+    async function fetchTrips() {
+      const { data, error} = await supabase
+        .from('trips')
+        .select(`
+          id,
+          title,
+          start_at,
+          end_at,
+          start_loc,
+          end_loc,
+          distance_km,
+          cover_url,
+          trip_participants (count)
+        `)
+        .eq('visibility', 'public')
+        .eq('is_overlander_official', true)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (data && !error) {
+        setPopularTrips(data)
+      }
+    }
+    fetchTrips()
+  }, [router])
 
   // Desktop: show marketing page
   return (
@@ -102,23 +120,68 @@ export default function Landing() {
       {/* Upcoming Trips */}
       <section className="py-20 px-6">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold text-center mb-12">Upcoming Adventures</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">Popular Adventures</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { title: 'Thailand to Laos', date: 'Dec 15-22, 2024', difficulty: 'Moderate', price: 'RM 2,500' },
-              { title: 'Malaysia North-South', date: 'Jan 10-14, 2025', difficulty: 'Easy', price: 'RM 1,200' },
-              { title: 'Borneo Expedition', date: 'Feb 20-28, 2025', difficulty: 'Advanced', price: 'RM 3,800' }
-            ].map((trip, i) => (
-              <div key={i} className="rounded-2xl border border-white/10 p-6 hover:bg-white/5 transition">
-                <div className="h-40 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl mb-4"></div>
-                <h3 className="text-xl font-semibold">{trip.title}</h3>
-                <p className="text-sm text-zinc-400 mt-2">{trip.date}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-sm text-zinc-500">{trip.difficulty}</span>
-                  <span className="text-lg font-bold text-yellow-400">{trip.price}</span>
+            {popularTrips.length > 0 ? (
+              popularTrips.map((trip) => (
+                <Link key={trip.id} href={`/trips/${trip.id}`}>
+                  <div className="rounded-2xl border border-white/10 p-6 hover:bg-white/5 transition cursor-pointer">
+                    {trip.cover_url ? (
+                      <div className="h-40 rounded-xl mb-4 overflow-hidden">
+                        <Image
+                          src={trip.cover_url}
+                          alt={trip.title}
+                          width={400}
+                          height={160}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-40 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl mb-4"></div>
+                    )}
+                    <h3 className="text-xl font-semibold">{trip.title}</h3>
+                    {trip.start_at && (
+                      <p className="text-sm text-zinc-400 mt-2">
+                        {new Date(trip.start_at).toLocaleDateString('en-MY', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                        {trip.end_at && ` - ${new Date(trip.end_at).toLocaleDateString('en-MY', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}`}
+                      </p>
+                    )}
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-sm text-zinc-500">
+                        {trip.start_loc} → {trip.end_loc}
+                      </span>
+                      {trip.distance_km && (
+                        <span className="text-sm font-bold text-yellow-400">{trip.distance_km} km</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              // Fallback to placeholder if no trips in database
+              [
+                { title: 'Thailand to Laos', date: 'Dec 15-22, 2024', route: 'Bangkok → Vientiane', distance: '850 km' },
+                { title: 'Malaysia North-South', date: 'Jan 10-14, 2025', route: 'Perlis → Johor', distance: '1,200 km' },
+                { title: 'Borneo Expedition', date: 'Feb 20-28, 2025', route: 'Kuching → Kota Kinabalu', distance: '1,800 km' }
+              ].map((trip, i) => (
+                <div key={i} className="rounded-2xl border border-white/10 p-6 hover:bg-white/5 transition">
+                  <div className="h-40 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl mb-4"></div>
+                  <h3 className="text-xl font-semibold">{trip.title}</h3>
+                  <p className="text-sm text-zinc-400 mt-2">{trip.date}</p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-sm text-zinc-500">{trip.route}</span>
+                    <span className="text-sm font-bold text-yellow-400">{trip.distance}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
