@@ -15,21 +15,37 @@ const tabs = [
 export default function NavBottom(){
   const pathname = usePathname()
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/80 backdrop-blur">
+    <nav
+      className="fixed left-3 right-3 z-[1000] animate-slide-up rounded-[28px] liquid-glass-nav"
+      style={{
+        bottom: 'max(12px, env(safe-area-inset-bottom, 12px))'
+      }}
+    >
       <div className="mx-auto grid grid-cols-5">
-        {tabs.map(t => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className={cn(
-              'flex flex-col items-center py-2 text-[10px] text-muted-foreground transition-colors',
-              pathname === t.href && 'text-foreground font-medium'
-            )}
-          >
-            <t.Icon className="w-6 h-6 mb-1" />
-            <span>{t.label}</span>
-          </Link>
-        ))}
+        {tabs.map(t => {
+          const isActive = pathname === t.href
+          return (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={cn(
+                'flex flex-col items-center py-3 text-[10px] transition-all duration-200',
+                'hover:scale-105 active:scale-95',
+                isActive
+                  ? 'text-foreground font-semibold'
+                  : 'text-muted-foreground hover:text-foreground/80'
+              )}
+            >
+              <div className={cn(
+                'mb-1 transition-transform duration-200',
+                isActive && 'scale-110'
+              )}>
+                <t.Icon className="w-6 h-6" />
+              </div>
+              <span className="tracking-tight">{t.label}</span>
+            </Link>
+          )
+        })}
       </div>
     </nav>
   )
