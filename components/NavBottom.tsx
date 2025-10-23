@@ -16,9 +16,9 @@ export default function NavBottom(){
   const pathname = usePathname()
   return (
     <nav
-      className="fixed left-3 right-3 z-[1000] animate-slide-up rounded-[28px] liquid-glass-nav"
+      className="fixed left-3 right-3 bottom-3 z-[1000] animate-slide-up rounded-[28px] liquid-glass-nav"
       style={{
-        bottom: 'max(12px, env(safe-area-inset-bottom, 12px))'
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
       <div className="mx-auto grid grid-cols-5">

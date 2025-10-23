@@ -20,7 +20,8 @@ export default function FloatingActionButton({
       onClick={onClick}
       aria-label={ariaLabel}
       className={cn(
-        'fixed z-[1001] flex items-center justify-center',
+        'fixed right-5 bottom-[88px] z-[1001]',
+        'flex items-center justify-center',
         'w-14 h-14 rounded-full',
         'liquid-glass-fab',
         'text-white',
@@ -31,8 +32,7 @@ export default function FloatingActionButton({
         className
       )}
       style={{
-        right: '20px',
-        bottom: 'max(88px, calc(env(safe-area-inset-bottom, 12px) + 76px))'
+        marginBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
       {icon}
