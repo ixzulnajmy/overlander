@@ -22,7 +22,13 @@ export default function Settings() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
+
+    // Detect PWA mode
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                  (window.navigator as any).standalone === true
+
+    // PWA: redirect to login, Browser: redirect to landing page
+    router.push(isPWA ? '/login' : '/')
   }
 
   return (

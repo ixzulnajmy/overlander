@@ -10,7 +10,14 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="min-h-screen pb-24">
-      <main className="p-4 pt-6">{children}</main>
+      <main
+        className="p-4"
+        style={{
+          paddingTop: 'max(1rem, env(safe-area-inset-top, 1rem))'
+        }}
+      >
+        {children}
+      </main>
       <NavBottom />
       <FloatingActionButton onClick={handleFABClick} ariaLabel="Create new trip" />
     </div>

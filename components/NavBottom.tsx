@@ -16,9 +16,9 @@ export default function NavBottom(){
   const pathname = usePathname()
   return (
     <nav
-      className="fixed left-3 right-3 bottom-3 z-[1000] animate-slide-up rounded-[28px] liquid-glass-nav"
+      className="fixed left-3 right-3 z-[1000] animate-slide-up rounded-[28px] liquid-glass-nav"
       style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+        bottom: 'max(12px, env(safe-area-inset-bottom, 12px))'
       }}
     >
       <div className="mx-auto grid grid-cols-5">
@@ -29,7 +29,7 @@ export default function NavBottom(){
               key={t.href}
               href={t.href}
               className={cn(
-                'flex flex-col items-center pt-3 pb-2 text-[10px] transition-all duration-200',
+                'flex flex-col items-center py-2.5 text-[10px] transition-all duration-200',
                 'hover:scale-105 active:scale-95',
                 isActive
                   ? 'text-foreground font-semibold'
