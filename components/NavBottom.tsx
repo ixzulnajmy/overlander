@@ -29,7 +29,7 @@ export default function NavBottom(){
               key={t.href}
               href={t.href}
               className={cn(
-                'flex flex-col items-center py-3 text-[10px] transition-all duration-200',
+                'flex flex-col items-center pt-3 pb-2 text-[10px] transition-all duration-200',
                 'hover:scale-105 active:scale-95',
                 isActive
                   ? 'text-foreground font-semibold'
@@ -37,7 +37,7 @@ export default function NavBottom(){
               )}
             >
               <div className={cn(
-                'mb-1 transition-transform duration-200',
+                'mb-0.5 transition-transform duration-200',
                 isActive && 'scale-110'
               )}>
                 <t.Icon className="w-6 h-6" />
