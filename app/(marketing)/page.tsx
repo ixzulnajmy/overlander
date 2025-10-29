@@ -6,34 +6,114 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { supabase } from '@/lib/supabaseClient'
 
+function isStandalonePwa() {
+  if (typeof window === 'undefined') return false
+
+  return (
+    (typeof window.matchMedia === 'function' &&
+      window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator as any).standalone === true
+  )
+}
+
+type BeforeInstallPromptEvent = Event & {
+  readonly platforms: string[]
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
+}
+
 export default function Landing() {
   const router = useRouter()
-  const [isMobile, setIsMobile] = useState(false)
+  const [showMarketing, setShowMarketing] = useState(false)
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false)
+  const [isIosSafari, setIsIosSafari] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
-    // Check auth status
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.push('/dashboard')
-      }
-    })
+    let isMounted = true
 
-    // Detect mobile
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent.toLowerCase()
-      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                          (window.navigator as any).standalone === true
-      return isMobileDevice || isStandalone
+    async function handleRouting() {
+      const { data } = await supabase.auth.getSession()
+      if (!isMounted) return
+
+      if (data.session) {
+        router.replace('/dashboard')
+        return
+      }
+
+      if (isStandalonePwa()) {
+        router.replace('/login')
+        return
+      }
+
+      setShowMarketing(true)
     }
-    setIsMobile(checkMobile())
+
+    handleRouting()
+
+    return () => {
+      isMounted = false
+    }
   }, [router])
 
-  // Mobile: redirect to login
-  if (isMobile) {
-    useEffect(() => {
-      router.push('/login')
-    }, [router])
+  useEffect(() => {
+    if (!showMarketing) {
+      return
+    }
+
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent
+    )
+    const standalone = isStandalonePwa()
+
+    if (!isMobileDevice || standalone) {
+      setShowInstallPrompt(false)
+      setIsIosSafari(false)
+      setDeferredPrompt(null)
+      return
+    }
+
+    const isIos = /iphone|ipad|ipod/.test(userAgent)
+    const isSafari =
+      /safari/.test(userAgent) && !/crios|fxios|opios|edgios|chrome|android/.test(userAgent)
+
+    if (isIos && isSafari) {
+      setIsIosSafari(true)
+      setShowInstallPrompt(true)
+      return
+    }
+
+    setIsIosSafari(false)
+
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault()
+      const promptEvent = event as BeforeInstallPromptEvent
+      setDeferredPrompt(promptEvent)
+      setShowInstallPrompt(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
+  }, [showMarketing])
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return
+
+    deferredPrompt.prompt()
+
+    const { outcome } = await deferredPrompt.userChoice
+    setDeferredPrompt(null)
+
+    if (outcome === 'accepted') {
+      setShowInstallPrompt(false)
+    }
+  }
+
+  if (!showMarketing) {
     return null
   }
 
@@ -76,6 +156,33 @@ export default function Landing() {
               Watch Demo
             </Button>
           </div>
+          {showInstallPrompt && (
+            <div className="mt-8 mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 text-left">
+              {isIosSafari ? (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-white">
+                    Add Overlander to your Home Screen
+                  </h3>
+                  <p className="text-sm text-zinc-300">
+                    Tap the share button in Safari, then choose <strong>Add to Home Screen</strong> to
+                    keep Overlander just a tap away.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Install the Overlander app</h3>
+                    <p className="text-sm text-zinc-300">
+                      Add Overlander to your home screen for a faster, full-screen experience.
+                    </p>
+                  </div>
+                  <Button onClick={handleInstallClick} className="sm:w-auto w-full">
+                    Add to Home Screen
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
