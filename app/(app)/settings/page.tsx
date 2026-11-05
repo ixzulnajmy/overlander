@@ -75,7 +75,7 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">Upcoming Events</div>
-              <div className="text-sm text-muted-foreground">Reminders for events you're attending</div>
+              <div className="text-sm text-muted-foreground">Reminders for events you&apos;re attending</div>
             </div>
             <button
               onClick={() => setNotifications({...notifications, upcomingEvents: !notifications.upcomingEvents})}
