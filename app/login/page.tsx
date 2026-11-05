@@ -150,7 +150,7 @@ export default function Login() {
     <main className="min-h-screen grid place-items-center p-6">
       <div className="w-full max-w-md rounded-2xl border border-white/10 p-6">
         <h1 className="text-2xl font-bold">Sign in</h1>
-        <p className="text-zinc-400 mt-1">We'll email you a login link.</p>
+        <p className="text-zinc-400 mt-1">We&apos;ll email you a login link.</p>
 
         {sent ? (
           <div className="mt-6 text-green-400">Check your inbox for the magic link.</div>

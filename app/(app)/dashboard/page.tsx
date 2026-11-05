@@ -126,7 +126,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Upcoming Service</CardTitle>
-            <CardDescription>Don't forget to maintain your ride</CardDescription>
+            <CardDescription>Don&apos;t forget to maintain your ride</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

@@ -260,7 +260,7 @@ export default function Landing() {
                     <div className="text-sm text-zinc-400">{testimonial.bike}</div>
                   </div>
                 </div>
-                <p className="text-zinc-300">"{testimonial.review}"</p>
+                <p className="text-zinc-300">&quot;{testimonial.review}&quot;</p>
               </div>
             ))}
           </div>
